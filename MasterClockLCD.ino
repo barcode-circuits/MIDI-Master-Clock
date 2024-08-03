@@ -1,13 +1,19 @@
 
 /*********************************************************************
-  master clock program
-  with 1/8, 1/4, 1/2 and 1/1 time beats and Midi sync
+  master clock program v1.0
+  with 1/8, 1/4, and 1/2 time beats and Midi sync
 
-  Original code by Potatopasty https://tg-music.neocities.org
+  --Original code by Potatopasty https://tg-music.neocities.org
   potatopasty@pm.me
 
-  Code modified by Craig Barnes to display on a 128x32 i2c OLED
-  Includes a reset switch to reset the counter and send a MIDI song pos
+  --Code modified by Craig Barnes to display on a 128x32 i2c OLED
+  Includes a reset switch to reset the counter and send a MIDI song position
+
+  --Updated again by Barcode to add reset trigger when the clock is stopped.
+  This is very helpful for sequencers that do not automatically reset to
+  the first step when the clock source is stopped. 
+
+  --ToDo: Add DinSync clock and start/stop
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
