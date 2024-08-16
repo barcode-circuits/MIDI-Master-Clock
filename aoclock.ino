@@ -8,8 +8,13 @@
 #include <U8g2lib.h>  // Drawing to OLED, from https://github.com/olikraus/u8g2
 #include <DirectIO.h> // Fast digital IO, from https://github.com/mmarchetti/DirectIO.git
 #include <assert.h> // Builtin
+#include <uClock.h> // https://github.com/midilab/uClock
 
 #define DEBUG 1  // Nonzero for debug prints to serial
+
+#define MIDI_CLOCK 0xF8
+#define MIDI_START 0xFA
+#define MIDI_STOP 0xFC
 
 // Hardware configuration
 
@@ -23,6 +28,7 @@ const int DIV2      = 8;
 const int DIV4      = 9;
 const int DIV8      = 10;
 const int DIVN      = 11;
+const int RESET     = 12;
 
 volatile Output<BEAT> o_beat;
 volatile Output<CLOCK> o_clock;
@@ -30,6 +36,7 @@ volatile Output<DIV2> o_div2;
 volatile Output<DIV4> o_div4;
 volatile Output<DIV8> o_div8;
 volatile Output<DIVN> o_divn;
+volatile Output<RESET> o_reset;
 
 volatile int counts[5] = {0, 0, 0, 0, 0}; // counts of clock pulses
 // for div2, div4, div8, divn, and beat outputs
@@ -87,6 +94,28 @@ int curs_col = 0;
 int curs_row = AMT_ROW;
 
 int MM[18] = {58, 60, 63, 66, 69, 72, 76, 80, 84, 88, 92, 96, 100, 104, 108, 112, 116, 120};   // Maelzel tempos
+
+// uClock setup
+
+void onPPQNCallback(uint32_t tick) {
+  Serial.write(MIDI_CLOCK);
+}
+
+void onStepCallback(uint32_t step) {
+  Serial.write(MIDI_CLOCK);
+}
+
+void onSync24Callback(uint32_t tick) {
+  Serial.write(MIDI_CLOCK);
+}
+
+void onClockStartCallback() {
+  Serial.write(MIDI_START);
+}
+
+void onClockStopCallback() {
+  Serial.write(MIDI_STOP);
+}
 
 /*********************************************************************/
 
