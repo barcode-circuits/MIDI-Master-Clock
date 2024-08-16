@@ -2,6 +2,7 @@
  * Clock module code
  * by Rich Holmes  5/2022
  * Heavily modified and extended from code by SynthMafia
+ * Modified again by Barcode
  */
 
 #include <TimerOne.h> // Interrupt timer, from https://github.com/PaulStoffregen/TimerOne
@@ -473,6 +474,9 @@ void stop_it()
   o_div4.write(LOW);
   o_div8.write(LOW);
   o_divn.write(LOW);
+  o_reset.write(HIGH);
+  delay(50);
+  o_reset.write(LOW);
 }
 
 /*********************************************************************/
@@ -743,14 +747,27 @@ void setup()
   pinMode (DIV8, OUTPUT);
   pinMode (DIVN, OUTPUT);
   pinMode (BEAT, OUTPUT);
+  pinMode (RESET, OUTPUT);
   pinMode (TACT, INPUT);    
   pinMode (ENCA, INPUT);
   pinMode (ENCB, INPUT);
   pinMode (ENCPUSH, INPUT);
 
   MMmode = true;
+
+  // uClock stuff
+  uClock.init();
+
+  uClock.setPPQN(uClock.PPQN_24);
+
+  uClock.setOnPPQN(onPPQNCallback);
+  //uClock.setOnSync24(onSync24Callback);
+  //uClock.setOnStep(onStepCallback);
+
+  uClock.setOnClockStart(onClockStartCallback);
+  uClock.setOnClockStop(onClockStopCallback);
   
-  //OLED
+  // OLED
   u8x8.begin();
 
   // Action time
@@ -781,6 +798,7 @@ void loop()
       ontime = period * duty_cycle * 0.01;
       start_it();
       started = true;
+      uClock.start();
     }
 
   int dre = digitalRead (ENCPUSH);
@@ -814,4 +832,13 @@ void loop()
   // Set period and on times
   period = (60000000./BPM/PPB);  // period in usec
   ontime = period * duty_cycle * 0.01;
+
+  midiclock();  // Midi clock control
 }
+
+/*********************************************************************/
+
+void midiclock() {
+  uClock.setTempo(BPM);
+
+/*********************************************************************/
